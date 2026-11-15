@@ -249,13 +249,29 @@ tbody tr:hover{background:rgba(37,99,235,.04)}
 .form-group .hint{font-size:.75rem;color:var(--text-soft);margin-top:4px}
 .form-actions{display:flex;gap:10px;justify-content:flex-start;margin-top:22px}
 .image-preview{
-  width:80px;height:80px;border-radius:10px;object-fit:cover;
+  width:100px;height:100px;border-radius:10px;object-fit:cover;
   border:1px solid var(--border);margin-top:8px;background:var(--bg);
 }
 .rating-input{display:flex;gap:6px}
 .rating-input button{font-size:1.4rem;color:var(--bg-3);transition:var(--transition)}
 .rating-input button.active{color:var(--secondary)}
 .rating-input button:hover{transform:scale(1.15)}
+
+/* ================== التبويبات لاختيار الصورة ================== */
+.img-tabs{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.img-tab-btn{
+  padding:8px 16px;border-radius:8px;background:var(--bg-3);color:var(--text-soft);
+  font-size:.85rem;font-weight:600;transition:var(--transition);
+  display:flex;align-items:center;gap:6px;
+}
+.img-tab-btn.active{background:var(--primary);color:#fff;}
+.img-upload-box{
+  border:2px dashed var(--bg-3);border-radius:10px;padding:20px;text-align:center;
+  cursor:pointer;transition:var(--transition);
+}
+.img-upload-box:hover{border-color:var(--primary);background:rgba(37,99,235,.05);}
+.img-upload-box i{font-size:2rem;color:var(--primary-light);margin-bottom:10px;display:block;}
+.img-upload-box span{font-size:.9rem;color:var(--text-soft);}
 
 /* ================== Modal ================== */
 .modal-overlay{
@@ -555,12 +571,33 @@ tbody tr:hover{background:rgba(37,99,235,.04)}
             <label for="pStock">الكمية المتوفرة</label>
             <input type="number" id="pStock" min="0" value="10">
           </div>
+          
+          <!-- قسم إضافة الصورة (جديد) -->
           <div class="form-group full">
-            <label for="pImage">رابط الصورة</label>
-            <input type="url" id="pImage" placeholder="https://images.unsplash.com/...">
-            <div class="hint">اتركه فارغاً لاستخدام صورة افتراضية</div>
+            <label>صورة المنتج</label>
+            <div class="img-tabs">
+              <button type="button" class="img-tab-btn active" id="tabUrl"><i class="fas fa-link"></i> رابط صورة</button>
+              <button type="button" class="img-tab-btn" id="tabUpload"><i class="fas fa-camera"></i> رفع من الجهاز</button>
+            </div>
+            
+            <!-- إدخال الرابط -->
+            <div id="urlInputContainer">
+              <input type="url" id="pImage" placeholder="https://images.unsplash.com/...">
+              <div class="hint">اتركه فارغاً لاستخدام صورة افتراضية</div>
+            </div>
+
+            <!-- رفع الصورة -->
+            <div id="uploadInputContainer" class="hidden">
+              <div class="img-upload-box" id="uploadBox">
+                <i class="fas fa-cloud-arrow-up"></i>
+                <span>اضغط هنا لاختيار صورة من جهازك</span>
+              </div>
+              <input type="file" id="pImageFile" accept="image/*" class="hidden">
+            </div>
+
             <img id="pImagePreview" class="image-preview hidden" alt="معاينة">
           </div>
+
           <div class="form-group full">
             <label for="pDesc">الوصف</label>
             <textarea id="pDesc" rows="3" placeholder="وصف تفصيلي للمنتج..."></textarea>
@@ -666,7 +703,6 @@ function getCategories(){
     const c = JSON.parse(localStorage.getItem(KEYS.categories) || 'null');
     if(Array.isArray(c) && c.length) return c;
   }catch(e){}
-  // إذا لم توجد، استخرجها من المنتجات أو استخدم الافتراضية
   const fromProducts = [...new Set(getProducts().map(p=>p.category))];
   const cats = fromProducts.length ? fromProducts : [...DEFAULT_CATS];
   localStorage.setItem(KEYS.categories, JSON.stringify(cats));
@@ -841,6 +877,7 @@ function deleteProduct(id){
 
 /* ---------- نموذج المنتج ---------- */
 let currentRating = 5;
+let currentImageBase64 = ""; // لتخزين الصورة المرفوعة
 
 function fillCategorySelect(selected){
   const sel = document.getElementById('pCategory');
@@ -848,12 +885,57 @@ function fillCategorySelect(selected){
   sel.innerHTML = cats.map(c=>`<option value="${c}" ${c===selected?'selected':''}>${c}</option>`).join('');
 }
 
+/* --- التبديل بين الرابط والرفع --- */
+document.getElementById('tabUrl').addEventListener('click', function(){
+  this.classList.add('active');
+  document.getElementById('tabUpload').classList.remove('active');
+  document.getElementById('urlInputContainer').classList.remove('hidden');
+  document.getElementById('uploadInputContainer').classList.add('hidden');
+});
+document.getElementById('tabUpload').addEventListener('click', function(){
+  this.classList.add('active');
+  document.getElementById('tabUrl').classList.remove('active');
+  document.getElementById('uploadInputContainer').classList.remove('hidden');
+  document.getElementById('urlInputContainer').classList.add('hidden');
+});
+
+/* --- التعامل مع رفع الصورة --- */
+document.getElementById('uploadBox').addEventListener('click', ()=>{
+  document.getElementById('pImageFile').click();
+});
+
+document.getElementById('pImageFile').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  
+  if(file.size > 2 * 1024 * 1024){ // حد أقصى 2 ميجابايت
+    showToast('حجم الصورة كبير جداً! يرجى اختيار صورة أقل من 2 ميجابايت.', 'error');
+    this.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event){
+    currentImageBase64 = event.target.result;
+    showImagePreview(currentImageBase64);
+    document.getElementById('uploadBox').innerHTML = '<i class="fas fa-check-circle" style="color:var(--success)"></i><span style="color:var(--success)">تم اختيار الصورة بنجاح</span>';
+  };
+  reader.readAsDataURL(file);
+});
+
+
 function openProductForm(id=null){
   const modal = document.getElementById('productModal');
   const form = document.getElementById('productForm');
   form.reset();
   currentRating = 5;
+  currentImageBase64 = "";
   updateRatingUI();
+  
+  // إعادة ضبط تبويب الصورة
+  document.getElementById('tabUrl').click();
+  document.getElementById('uploadBox').innerHTML = '<i class="fas fa-cloud-arrow-up"></i><span>اضغط هنا لاختيار صورة من جهازك</span>';
+  document.getElementById('pImagePreview').classList.add('hidden');
 
   if(id){
     // تعديل
@@ -865,18 +947,27 @@ function openProductForm(id=null){
     document.getElementById('pPrice').value = p.price;
     document.getElementById('pOldPrice').value = p.oldPrice || '';
     document.getElementById('pStock').value = p.stock || 0;
-    document.getElementById('pImage').value = p.image || '';
     document.getElementById('pDesc').value = p.description || '';
     document.getElementById('pFeatured').value = p.featured ? 'true' : 'false';
     currentRating = p.rating || 5;
     updateRatingUI();
     fillCategorySelect(p.category);
-    if(p.image) showImagePreview(p.image);
+    
+    // التحقق من نوع الصورة (رابط أو Base64)
+    if(p.image) {
+      showImagePreview(p.image);
+      if(p.image.startsWith('data:image')){
+        document.getElementById('tabUpload').click();
+        currentImageBase64 = p.image;
+        document.getElementById('uploadBox').innerHTML = '<i class="fas fa-check-circle" style="color:var(--success)"></i><span style="color:var(--success)">تم اختيار الصورة بنجاح</span>';
+      } else {
+        document.getElementById('pImage').value = p.image;
+      }
+    }
   } else {
     document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-plus"></i> إضافة منتج جديد';
     document.getElementById('pId').value = '';
     fillCategorySelect();
-    document.getElementById('pImagePreview').classList.add('hidden');
   }
   modal.classList.add('active');
 }
@@ -911,13 +1002,22 @@ document.getElementById('productForm').addEventListener('submit', function(e){
   const idVal = document.getElementById('pId').value;
   const isEdit = idVal !== '';
 
+  // تحديد الصورة
+  const isUploadTabActive = document.getElementById('tabUpload').classList.contains('active');
+  let finalImage = '';
+  if(isUploadTabActive && currentImageBase64){
+    finalImage = currentImageBase64;
+  } else {
+    finalImage = document.getElementById('pImage').value.trim();
+  }
+
   const data = {
     name: document.getElementById('pName').value.trim(),
     price: parseFloat(document.getElementById('pPrice').value) || 0,
     oldPrice: document.getElementById('pOldPrice').value ? parseFloat(document.getElementById('pOldPrice').value) : null,
     category: document.getElementById('pCategory').value,
     stock: parseInt(document.getElementById('pStock').value) || 0,
-    image: document.getElementById('pImage').value.trim() || 'https://placehold.co/400x400?text=Ray',
+    image: finalImage || 'https://placehold.co/400x400?text=Ray',
     description: document.getElementById('pDesc').value.trim(),
     rating: currentRating,
     featured: document.getElementById('pFeatured').value === 'true',
@@ -1133,4 +1233,4 @@ window.addEventListener('DOMContentLoaded', function(){
 </script>
 
 </body>
-              </html>
+  </html>
