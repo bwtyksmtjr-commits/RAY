@@ -75,19 +75,20 @@ header.site-header{
 .sidebar-overlay {position: fixed;inset: 0;background: rgba(0,0,0,0.5);z-index: 1500;opacity: 0;visibility: hidden;transition: var(--transition);}
 .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
-/* ================== الشريط السفلي (معكوس من اليمين لليسار) ================== */
+/* ================== الشريط السفلي (6 أيقونات) ================== */
 .bottom-nav{
   position:fixed;bottom:15px;left:15px;right:15px;z-index:1000;
   background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
   border-radius:40px;display:flex;justify-content:space-around;align-items:center;
   height:70px;box-shadow:0 10px 30px rgba(233, 30, 99, 0.2);
+  padding: 0 10px;
 }
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-soft);font-size:.7rem;font-weight:700;transition:var(--transition);flex:1;cursor:pointer;}
-.nav-item i{font-size:1.4rem}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-soft);font-size:.65rem;font-weight:700;transition:var(--transition);flex:1;cursor:pointer;}
+.nav-item i{font-size:1.3rem}
 .nav-item.active{color:var(--pink-dark)}
-.nav-item.home-btn{background:var(--pink-gradient);color:#fff;width:65px;height:65px;border-radius:50%;margin-top:-30px;box-shadow:0 8px 20px rgba(233, 30, 99, 0.4);border:4px solid var(--pink-bg);justify-content:center;}
-.nav-item.home-btn i{font-size:1.6rem}
-.nav-item.home-btn span{margin-top:2px;font-size:.65rem}
+.nav-item.home-btn{background:var(--pink-gradient);color:#fff;width:60px;height:60px;border-radius:50%;margin-top:-30px;box-shadow:0 8px 20px rgba(233, 30, 99, 0.4);border:4px solid var(--pink-bg);justify-content:center;flex:0 0 auto;}
+.nav-item.home-btn i{font-size:1.5rem}
+.nav-item.home-btn span{margin-top:2px;font-size:.6rem}
 
 /* ================== الأزرار ================== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:50px;font-weight:900;font-size:1rem;transition:var(--transition);cursor:pointer;}
@@ -124,10 +125,6 @@ header.site-header{
 .search-bar input{width:100%;padding:12px 45px 12px 20px;border-radius:50px;border:2px solid var(--pink-light);background:#fff;outline:none;color:var(--text-dark);}
 .search-bar input:focus{border-color:var(--pink-main)}
 .search-bar i{position:absolute;right:18px;top:50%;transform:translateY(-50%);color:var(--text-soft)}
-.filter-pills{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;margin-bottom:15px;scrollbar-width:none}
-.filter-pills::-webkit-scrollbar{display:none}
-.pill{padding:8px 15px;border-radius:50px;background:#fff;border:1px solid var(--pink-light);font-size:.85rem;font-weight:700;color:var(--text-soft);white-space:nowrap;display:flex;align-items:center;gap:5px;}
-.pill.active{background:var(--pink-gradient);color:#fff;border-color:transparent}
 
 /* ================== تفاصيل المنتج ================== */
 .product-detail{display:flex;flex-direction:column;gap:20px;background:#fff;border-radius:var(--radius);padding:15px;box-shadow:var(--shadow)}
@@ -365,13 +362,14 @@ header.site-header{
   </section>
 </main>
 
-<!-- الشريط السفلي (معكوس من اليمين لليسار) -->
+<!-- الشريط السفلي (الترتيب المطلوب: من اليمين الرئيسية ← المفضلة ← الأقسام ← العروض ← جميع المنتجات ← حسابي) -->
 <nav class="bottom-nav">
-  <div class="nav-item" data-nav="account"><i class="far fa-user"></i><span>حسابي</span></div>
+  <div class="nav-item active" data-nav="home"><i class="fas fa-home"></i><span>الرئيسية</span></div>
   <div class="nav-item" data-nav="wishlist"><i class="far fa-heart"></i><span>المفضلة</span></div>
-  <div class="nav-item home-btn active" data-nav="home"><i class="fas fa-home"></i><span>الرئيسية</span></div>
   <div class="nav-item" data-nav="categories"><i class="fas fa-th-large"></i><span>الأقسام</span></div>
   <div class="nav-item" data-nav="offers"><i class="fas fa-tag"></i><span>العروض</span></div>
+  <div class="nav-item" data-nav="shop"><i class="fas fa-store"></i><span>المنتجات</span></div>
+  <div class="nav-item" data-nav="account"><i class="far fa-user"></i><span>حسابي</span></div>
 </nav>
 
 <div class="toast-container" id="toastContainer"></div>
@@ -381,10 +379,8 @@ header.site-header{
    السكربت
    ============================================================ */
 const STORE = { whatsapp: '966500000000', shipping: 20 };
-// توحيد المفاتيح مع لوحة التحكم
 const KEYS = { products: 'ray_products', cart: 'ray_cart', wishlist: 'ray_wishlist', categories: 'ray_categories' };
 
-// منتجات افتراضية تظهر لأول مرة فقط
 const SEED_PRODUCTS = [
   { id:1, name:'صندوق التحديات الزوجية', price:79, oldPrice:99, category:'هدايا مميزة', image:'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=500&q=80', rating:4.8, sold:12 },
   { id:2, name:'ألعاب رومانسية', price:49, oldPrice:null, category:'ألعاب رومانسية', image:'https://images.unsplash.com/photo-1629196914270-46869e174304?w=500&q=80', rating:4.8, sold:25 },
@@ -413,7 +409,6 @@ function getCategories(){
     let c = JSON.parse(localStorage.getItem(KEYS.categories));
     if(c && c.length) return c;
   } catch(e){}
-  // إذا لم توجد أقسام، استخرجها من المنتجات
   const fromProducts = [...new Set(getProducts().map(p=>p.category))];
   return fromProducts.length ? fromProducts : ['هدايا مميزة', 'ألعاب رومانسية'];
 }
@@ -489,18 +484,15 @@ function productCardHTML(p){
   </article>`;
 }
 
-// عرض الصفحات بناءً على البيانات الحية من لوحة التحكم
 function renderHome(){ document.getElementById('homeGrid').innerHTML = getProducts().slice(0,4).map(productCardHTML).join(''); }
 function renderShop(){ document.getElementById('shopGrid').innerHTML = getProducts().map(productCardHTML).join(''); }
 function renderOffers(){ document.getElementById('offersGrid').innerHTML = getProducts().filter(p=>p.oldPrice).map(productCardHTML).join(''); }
 
-// عرض الأقسام بناءً على الأقسام المضافة في لوحة التحكم
 function renderCats(){
   const cats = getCategories();
   const grid = document.getElementById('catsGrid');
   if(!grid) return;
   grid.innerHTML = cats.map(c=>{
-    // البحث عن صورة للمنتج كغلاف للقسم
     const prod = getProducts().find(p=>p.category===c);
     const img = prod ? prod.image : 'https://placehold.co/200x200?text=Section';
     return `<div class="product-card" onclick="goToPage('shop')">
