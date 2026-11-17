@@ -362,7 +362,7 @@ header.site-header{
   </section>
 </main>
 
-<!-- الشريط السفلي (الترتيب المطلوب: من اليمين الرئيسية ← المفضلة ← الأقسام ← العروض ← جميع المنتجات ← حسابي) -->
+<!-- الشريط السفلي -->
 <nav class="bottom-nav">
   <div class="nav-item active" data-nav="home"><i class="fas fa-home"></i><span>الرئيسية</span></div>
   <div class="nav-item" data-nav="wishlist"><i class="far fa-heart"></i><span>المفضلة</span></div>
@@ -375,11 +375,9 @@ header.site-header{
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-/* ============================================================
-   السكربت
-   ============================================================ */
 const STORE = { whatsapp: '966500000000', shipping: 20 };
-const KEYS = { products: 'ray_products', cart: 'ray_cart', wishlist: 'ray_wishlist', categories: 'ray_categories' };
+// إضافة مفتاح الطلبات
+const KEYS = { products: 'ray_products', cart: 'ray_cart', wishlist: 'ray_wishlist', categories: 'ray_categories', orders: 'ray_orders' };
 
 const SEED_PRODUCTS = [
   { id:1, name:'صندوق التحديات الزوجية', price:79, oldPrice:99, category:'هدايا مميزة', image:'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=500&q=80', rating:4.8, sold:12 },
@@ -393,10 +391,7 @@ const SEED_PRODUCTS = [
 function getProducts(){ 
   try{ 
     let p = JSON.parse(localStorage.getItem(KEYS.products));
-    if(!p || !p.length){ 
-      localStorage.setItem(KEYS.products, JSON.stringify(SEED_PRODUCTS)); 
-      return SEED_PRODUCTS; 
-    }
+    if(!p || !p.length){ localStorage.setItem(KEYS.products, JSON.stringify(SEED_PRODUCTS)); return SEED_PRODUCTS; }
     return p;
   }catch(e){ return SEED_PRODUCTS } 
 }
@@ -412,6 +407,8 @@ function getCategories(){
   const fromProducts = [...new Set(getProducts().map(p=>p.category))];
   return fromProducts.length ? fromProducts : ['هدايا مميزة', 'ألعاب رومانسية'];
 }
+function getOrders(){ try{ return JSON.parse(localStorage.getItem(KEYS.orders)||'[]') }catch(e){ return [] } }
+function saveOrders(orders){ localStorage.setItem(KEYS.orders, JSON.stringify(orders)); }
 
 function updateBadge(){
   const count = getCart().reduce((s,i)=>s+i.qty, 0);
@@ -607,6 +604,7 @@ function renderCheckout(){
     <div class="summary-row total"><span>الإجمالي</span><span>${formatPrice(sub+STORE.shipping)}</span></div>`;
 }
 
+// حفظ الطلب وإرساله للوحة التحكم + واتساب
 document.getElementById('checkoutForm').addEventListener('submit', function(e){
   e.preventDefault();
   const cart = getCart();
@@ -614,14 +612,34 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e){
   
   const name = document.getElementById('cName').value;
   const phone = document.getElementById('cPhone').value;
-  const total = cart.reduce((s,i)=>s+i.price*i.qty,0) + STORE.shipping;
+  const address = document.getElementById('cAddress').value;
+  const sub = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const total = sub + STORE.shipping;
   
-  let msg = `🛒 طلب جديد من متجر أري\n\nالاسم: ${name}\nالجوال: ${phone}\n\n`;
+  // 1. إنشاء بيانات الطلب وحفظها في المتصفح
+  const orders = getOrders();
+  const newOrder = {
+    id: orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1, // رقم الطلب
+    customerName: name,
+    phone: phone,
+    address: address,
+    items: cart, // المنتجات بالصور والكميات
+    subtotal: sub,
+    shipping: STORE.shipping,
+    total: total,
+    date: new Date().toLocaleString('ar-SA'),
+    status: 'جديد'
+  };
+  orders.push(newOrder);
+  saveOrders(orders);
+
+  // 2. تجهيز رسالة واتساب
+  let msg = `🛒 طلب جديد من متجر أري (طلب رقم ${newOrder.id})\n\nالاسم: ${name}\nالجوال: ${phone}\nالعنوان: ${address}\n\n`;
   cart.forEach(i=> msg += `- ${i.name} (${i.qty}) = ${i.price*i.qty} ر.يال\n`);
   msg += `\nالإجمالي: ${total} ر.يال`;
 
   window.open(`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
-  saveCart([]);
+  saveCart([]); // تفريغ السلة
   goToPage('success');
 });
 
