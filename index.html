@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>متجر أري | ARI - ألعاب وتحديات للزوجين</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E91E63'/><text x='50' y='70' font-size='60' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>A</text></svg>">
+<title>متجر راي | RAY - ألعاب وتحديات للزوجين</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E91E63'/><text x='50' y='70' font-size='60' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>R</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -189,7 +189,7 @@ header.site-header{
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>أري | ARI</h2>
+    <h2>راي | RAY</h2>
     <p>أهلاً بك في عالم الفخامة</p>
     <div class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></div>
   </div>
@@ -210,7 +210,7 @@ header.site-header{
   <div class="header-top-bar">
     <button class="icon-btn" id="openSidebarBtn"><i class="fas fa-bars"></i></button>
     <div class="logo-area" data-nav="home">
-      <div class="logo-text"><i class="far fa-heart"></i> أري | ARI</div>
+      <div class="logo-text"><i class="far fa-heart"></i> راي | RAY</div>
       <div class="slogan">ألعاب وتحديات للزوجين<br>لأن الحب أجمل .. عندما نلعب معاً</div>
     </div>
     <div style="display:flex;gap:10px">
@@ -310,7 +310,7 @@ header.site-header{
     <div class="container" style="text-align:center; padding-top:50px;">
       <i class="fas fa-check-circle" style="font-size:5rem;color:var(--pink-main);margin-bottom:20px;"></i>
       <h2 style="font-size:1.8rem;color:var(--pink-dark);margin-bottom:10px;">تم استلام طلبك بنجاح!</h2>
-      <p style="color:var(--text-soft);margin-bottom:30px;">شكراً لثقتك بمتجر أري. جاري تحويلك إلى واتساب لتأكيد التفاصيل.</p>
+      <p style="color:var(--text-soft);margin-bottom:30px;">شكراً لثقتك بمتجر راي. جاري تحويلك إلى واتساب لتأكيد التفاصيل.</p>
       <button class="btn btn-pink" data-nav="home">العودة للرئيسية</button>
     </div>
   </section>
@@ -329,8 +329,8 @@ header.site-header{
       <div class="section-head"><h2>حسابي</h2></div>
       <div class="account-card">
         <div class="avatar"><i class="fas fa-user"></i></div>
-        <h3 style="color:var(--pink-dark)">متجر أري</h3>
-        <p style="color:var(--text-soft);font-size:.9rem">ari.store@example.com</p>
+        <h3 style="color:var(--pink-dark)">متجر راي</h3>
+        <p style="color:var(--text-soft);font-size:.9rem">ray.store@example.com</p>
         <div class="account-stats">
           <div class="stat-item"><i class="fas fa-shopping-bag"></i><span>الطلبات</span><b>12</b></div>
           <div class="stat-item"><i class="fas fa-heart"></i><span>المفضلة</span><b>8</b></div>
@@ -376,24 +376,17 @@ header.site-header{
 
 <script>
 const STORE = { whatsapp: '966500000000', shipping: 20 };
-// إضافة مفتاح الطلبات
 const KEYS = { products: 'ray_products', cart: 'ray_cart', wishlist: 'ray_wishlist', categories: 'ray_categories', orders: 'ray_orders' };
-
-const SEED_PRODUCTS = [
-  { id:1, name:'صندوق التحديات الزوجية', price:79, oldPrice:99, category:'هدايا مميزة', image:'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=500&q=80', rating:4.8, sold:12 },
-  { id:2, name:'ألعاب رومانسية', price:49, oldPrice:null, category:'ألعاب رومانسية', image:'https://images.unsplash.com/photo-1629196914270-46869e174304?w=500&q=80', rating:4.8, sold:25 },
-  { id:3, name:'شموع رومانسية', price:59, oldPrice:null, category:'أجواء رومانسية', image:'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&q=80', rating:4.7, sold:15 },
-  { id:4, name:'ألعاب وتحديات زوجية', price:69, oldPrice:89, category:'ألعاب وتحديات', image:'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=500&q=80', rating:4.7, sold:30 },
-  { id:5, name:'مسابقات زوجية', price:39, oldPrice:null, category:'مسابقات زوجية', image:'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&q=80', rating:4.6, sold:18 },
-  { id:6, name:'لعبة تقوية العلاقة', price:49, oldPrice:null, category:'ألعاب رومانسية', image:'https://images.unsplash.com/photo-1518049362265-d5b2a6467637?w=500&q=80', rating:4.6, sold:10 }
-];
 
 function getProducts(){ 
   try{ 
     let p = JSON.parse(localStorage.getItem(KEYS.products));
-    if(!p || !p.length){ localStorage.setItem(KEYS.products, JSON.stringify(SEED_PRODUCTS)); return SEED_PRODUCTS; }
+    if(!p || !p.length){ 
+      localStorage.setItem(KEYS.products, JSON.stringify([])); 
+      return []; 
+    }
     return p;
-  }catch(e){ return SEED_PRODUCTS } 
+  }catch(e){ return [] } 
 }
 function getCart(){ try{ return JSON.parse(localStorage.getItem(KEYS.cart)||'[]') }catch(e){ return [] } }
 function saveCart(c){ localStorage.setItem(KEYS.cart, JSON.stringify(c)); updateBadge(); }
@@ -634,7 +627,7 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e){
   saveOrders(orders);
 
   // 2. تجهيز رسالة واتساب
-  let msg = `🛒 طلب جديد من متجر أري (طلب رقم ${newOrder.id})\n\nالاسم: ${name}\nالجوال: ${phone}\nالعنوان: ${address}\n\n`;
+  let msg = `🛒 طلب جديد من متجر راي (طلب رقم ${newOrder.id})\n\nالاسم: ${name}\nالجوال: ${phone}\nالعنوان: ${address}\n\n`;
   cart.forEach(i=> msg += `- ${i.name} (${i.qty}) = ${i.price*i.qty} ر.يال\n`);
   msg += `\nالإجمالي: ${total} ر.يال`;
 
@@ -650,4 +643,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 </script>
 </body>
-</html>
+  </html>
