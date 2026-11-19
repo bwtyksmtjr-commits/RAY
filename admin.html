@@ -236,13 +236,17 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
       <!-- الأمان -->
       <div class="page-panel" id="panel-security">
         <div class="panel">
-          <div class="panel-head"><h3><i class="fas fa-shield-halved"></i> تغيير بيانات الدخول</h3></div>
+          <div class="panel-head"><h3><i class="fas fa-shield-halved"></i> إعدادات الأمان</h3></div>
           <div class="panel-body">
-            <form id="securityForm">
-              <div class="form-group"><label>اسم المستخدم الجديد</label><input type="text" id="newUser" required></div>
-              <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="newPass" required></div>
-              <div class="form-group"><label>تأكيد كلمة المرور</label><input type="password" id="confirmPass" required></div>
-              <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> تحديث</button></div>
+            <div style="background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:#fca5a5; padding:15px; border-radius:10px; margin-bottom:20px; font-size:0.9rem;">
+              <i class="fas fa-info-circle"></i> <b>ملاحظة هامة:</b> تم تثبيت بيانات الدخول لحماية اللوحة من القفل. الدخول متاح دائماً باستخدام: <br><br>
+              <b>اسم المستخدم:</b> admin <br>
+              <b>كلمة المرور:</b> admin123
+            </div>
+            <form id="securityForm" style="opacity: 0.5; pointer-events: none;">
+              <div class="form-group"><label>اسم المستخدم الجديد (معطل)</label><input type="text" id="newUser" disabled placeholder="admin"></div>
+              <div class="form-group"><label>كلمة المرور الجديدة (معطل)</label><input type="password" id="newPass" disabled placeholder="••••••••"></div>
+              <div class="form-actions"><button type="submit" class="btn btn-primary" disabled><i class="fas fa-save"></i> تحديث (معطل)</button></div>
             </form>
           </div>
         </div>
@@ -265,10 +269,7 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
           <div class="form-group full"><label>اسم المنتج *</label><input type="text" id="pName" required></div>
           <div class="form-group"><label>السعر *</label><input type="number" id="pPrice" required></div>
           <div class="form-group"><label>السعر القديم (اختياري)</label><input type="number" id="pOldPrice"></div>
-          <div class="form-group">
-            <label>القسم *</label>
-            <select id="pCategory" required></select>
-          </div>
+          <div class="form-group"><label>القسم *</label><select id="pCategory" required></select></div>
           <div class="form-group"><label>المخزون</label><input type="number" id="pStock" value="10"></div>
           <div class="form-group full"><label>رابط الصورة (URL)</label><input type="url" id="pImage" placeholder="https://..."></div>
           <div class="form-group full"><label>الوصف</label><textarea id="pDesc" rows="3"></textarea></div>
@@ -295,7 +296,10 @@ function saveCategories(data){ localStorage.setItem(KEYS.categories, JSON.string
 function getOrders(){ try{ return JSON.parse(localStorage.getItem(KEYS.orders)) || [] }catch(e){ return [] } }
 function saveOrders(data){ localStorage.setItem(KEYS.orders, JSON.stringify(data)) }
 
-function getAuth() { try { const a = JSON.parse(localStorage.getItem(KEYS.auth)); if(a && a.user) return a; } catch(e){} return { user: 'admin', pass: 'admin123' }; }
+// دالة تسجيل الدخول: تم تثبيتها على admin / admin123 
+function getAuth() { 
+  return { user: 'admin', pass: 'admin123' }; 
+}
 
 // تسجيل الدخول
 document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -348,7 +352,7 @@ function renderAll() {
   renderCategories();
 }
 
-// دالة عرض الطلبات (تم التأكد من عملها)
+// دالة عرض الطلبات
 function renderOrders() {
   const orders = getOrders();
   const statEl = document.getElementById('statOrders');
@@ -527,18 +531,6 @@ window.delCat = function(c) {
     renderAll();
   }
 };
-
-// الأمان
-document.getElementById('securityForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const u = document.getElementById('newUser').value.trim();
-  const p1 = document.getElementById('newPass').value;
-  const p2 = document.getElementById('confirmPass').value;
-  if(p1 !== p2) return showToast('كلمات المرور غير متطابقة', 'error');
-  localStorage.setItem(KEYS.auth, JSON.stringify({ user: u, pass: p1 }));
-  showToast('تم التحديث! سيتم تسجيل الخروج.');
-  setTimeout(()=>location.reload(), 2000);
-});
 </script>
 </body>
 </html>
