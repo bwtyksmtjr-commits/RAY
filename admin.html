@@ -59,7 +59,6 @@ input,select,textarea{font-family:inherit;font-size:1rem}
 #adminApp{display:none;}
 #adminApp.active{display:block;}
 
-/* الهيدر العلوي */
 .top-header {display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; margin-bottom: 10px;}
 .logo-img {height: 70px; object-fit: contain;}
 .header-icon {width: 45px; height: 45px; border-radius: 50%; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--pink-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; cursor: pointer;}
@@ -121,6 +120,7 @@ input,select,textarea{font-family:inherit;font-size:1rem}
 .panel-header h3 {color: var(--pink-dark); font-size: 1.1rem;}
 .panel-body {padding: 20px;}
 
+/* الجداول */
 .table-responsive {overflow-x: auto;}
 table {width: 100%; border-collapse: collapse; min-width: 600px;}
 th, td {padding: 12px; text-align: right; border-bottom: 1px solid var(--pink-light); font-size: 0.9rem;}
@@ -133,7 +133,7 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
 .form-group input, .form-group select, .form-group textarea {width: 100%; padding: 12px 15px; border: 1px solid var(--pink-light); border-radius: 10px; background: var(--pink-bg); color: var(--text-dark); outline: none;}
 .form-grid {display: grid; grid-template-columns: 1fr 1fr; gap: 15px;}
 
-/* الأزرار */
+/* أزرار */
 .btn {padding: 10px 20px; border-radius: 10px; font-weight: 900; display: inline-flex; align-items: center; gap: 8px;}
 .btn-primary {background: var(--pink-gradient); color: #fff;}
 .btn-danger {background: rgba(239,68,68,.1); color: #dc2626;}
@@ -141,12 +141,27 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
 .btn-sm {padding: 5px 10px; font-size: 0.8rem;}
 .icon-btn {width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;}
 
-/* المودال */
-.modal-overlay {position: fixed; inset: 0; background: rgba(74,14,37,.7); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; visibility: hidden; transition: var(--transition);}
-.modal-overlay.active {opacity: 1; visibility: visible;}
-.modal {background: var(--white); border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;}
-.modal-header {padding: 15px 20px; border-bottom: 1px solid var(--pink-light); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--white); z-index: 2;}
-.modal-body {padding: 20px;}
+/* صفحة إضافة المنتج الجديدة */
+.add-product-header {background: var(--pink-light); border-radius: 15px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid var(--pink-main);}
+.add-product-header h2 {color: var(--pink-dark); font-size: 1.2rem; margin-bottom: 5px;}
+.add-product-header p {color: var(--text-soft); font-size: 0.9rem;}
+.add-product-icon {width: 60px; height: 60px; background: var(--pink-main); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff;}
+
+.section-box {background: var(--white); border-radius: 15px; border: 1px solid var(--pink-light); margin-bottom: 20px; overflow: hidden;}
+.section-title {background: var(--pink-bg); padding: 15px 20px; display: flex; align-items: center; gap: 10px; color: var(--pink-dark); font-weight: 900; border-bottom: 1px solid var(--pink-light);}
+.section-title i {font-size: 1.2rem;}
+.section-content {padding: 20px;}
+
+.upload-box {border: 2px dashed var(--pink-main); border-radius: 10px; padding: 20px; text-align: center; background: rgba(233,30,99,0.05); cursor: pointer;}
+.upload-box i {font-size: 2rem; color: var(--pink-main); margin-bottom: 10px;}
+.upload-box span {display: block; color: var(--pink-dark); font-weight: bold;}
+.upload-box small {color: var(--text-soft);}
+.img-preview {width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none;}
+
+/* شريط علوي داخلي للصفحات */
+.page-topbar {display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--white); border-bottom: 1px solid var(--pink-light); margin-bottom: 20px; border-radius: 15px;}
+.page-topbar h2 {font-size: 1.1rem; color: var(--pink-dark);}
+.back-btn {color: var(--pink-dark); font-size: 1.2rem;}
 
 /* الإشعارات */
 .toast-container {position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px;}
@@ -155,6 +170,7 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
 
 @media(max-width: 768px){
   .form-grid {grid-template-columns: 1fr;}
+  .stats-grid {grid-template-columns: repeat(2, 1fr);}
 }
 </style>
 </head>
@@ -277,8 +293,12 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
     
     <!-- إدارة الطلبات -->
     <div class="page-panel" id="panel-orders">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('mainDashboard')"><i class="fas fa-arrow-right"></i></button>
+        <h2>جميع الطلبات</h2>
+        <button class="btn btn-primary btn-sm" onclick="renderOrders()"><i class="fas fa-rotate-right"></i></button>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-clipboard-list"></i> جميع الطلبات</h3><button class="btn btn-primary btn-sm" onclick="renderOrders()"><i class="fas fa-rotate-right"></i> تحديث</button></div>
         <div class="panel-body">
           <div class="table-responsive">
             <table><thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th></tr></thead><tbody id="ordersTable"></tbody></table>
@@ -289,8 +309,12 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
 
     <!-- تفاصيل الطلب -->
     <div class="page-panel" id="panel-order-details">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('panel-orders')"><i class="fas fa-arrow-right"></i></button>
+        <h2>تفاصيل الطلب <span id="orderDetailId" style="color:var(--pink-main);"></span></h2>
+        <div></div>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-file-invoice"></i> تفاصيل الطلب <span id="orderDetailId" style="color:var(--pink-main);"></span></h3><button class="btn btn-primary btn-sm" onclick="showPage('panel-orders')"><i class="fas fa-arrow-right"></i> رجوع</button></div>
         <div class="panel-body">
           <div class="form-grid" style="margin-bottom:20px;">
             <div style="background:var(--pink-bg); padding:15px; border-radius:10px; border:1px solid var(--pink-light);">
@@ -316,8 +340,12 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
 
     <!-- إدارة المنتجات -->
     <div class="page-panel" id="panel-products">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('mainDashboard')"><i class="fas fa-arrow-right"></i></button>
+        <h2>المنتجات</h2>
+        <button class="btn btn-primary btn-sm" onclick="showPage('panel-add-product')"><i class="fas fa-plus"></i> إضافة</button>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-box"></i> المنتجات</h3><button class="btn btn-primary btn-sm" onclick="openProductForm()"><i class="fas fa-plus"></i> إضافة</button></div>
         <div class="panel-body">
           <div class="table-responsive">
             <table><thead><tr><th>المنتج</th><th>القسم</th><th>السعر</th><th>إجراءات</th></tr></thead><tbody id="productsTable"></tbody></table>
@@ -326,14 +354,120 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
       </div>
     </div>
 
+    <!-- صفحة إضافة منتج (التصميم الجديد) -->
+    <div class="page-panel" id="panel-add-product">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('panel-products')"><i class="fas fa-arrow-right"></i></button>
+        <h2 id="addProductTitle">إضافة منتج جديد</h2>
+        <div style="color:var(--pink-main); font-size:1.2rem;"><i class="fas fa-box-open"></i></div>
+      </div>
+
+      <div class="add-product-header">
+        <div>
+          <h2 id="addProductHeaderTitle">إضافة منتج جديد</h2>
+          <p>أضف منتجاً مميزاً لمتجرك مع صوره وتفاصيله</p>
+        </div>
+        <div class="add-product-icon"><i class="fas fa-box-open"></i></div>
+      </div>
+
+      <form id="productForm">
+        <input type="hidden" id="pId">
+
+        <!-- المعلومات الأساسية -->
+        <div class="section-box">
+          <div class="section-title"><i class="fas fa-cube"></i> المعلومات الأساسية</div>
+          <div class="section-content">
+            <div class="form-group">
+              <label>اسم المنتج *</label>
+              <input type="text" id="pName" required placeholder="أدخل اسم المنتج">
+            </div>
+            <div class="form-group">
+              <label>التصنيف</label>
+              <select id="pCategory" required></select>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>سعر البيع (ر.س) *</label>
+                <input type="number" id="pPrice" required placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>قبل الخصم (اختياري)</label>
+                <input type="number" id="pOldPrice" placeholder="0.00">
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>المخزون</label>
+                <input type="number" id="pStock" value="10">
+              </div>
+              <div class="form-group">
+                <label>الحالة</label>
+                <select>
+                  <option>نشط (معروض)</option>
+                  <option>مسودة</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>شارة البطاقة (مثال: جديد، الأكثر طلباً)</label>
+              <input type="text" placeholder="اختياري">
+            </div>
+          </div>
+        </div>
+
+        <!-- الوصف والخيارات -->
+        <div class="section-box">
+          <div class="section-title"><i class="fas fa-file-alt"></i> الوصف والخيارات</div>
+          <div class="section-content">
+            <div class="form-group">
+              <label>وصف مختصر (يظهر تحت الاسم)</label>
+              <input type="text" placeholder="مثال: مزيج مثالي من المرح والمودة">
+            </div>
+            <div class="form-group">
+              <label>الوصف التفصيلي</label>
+              <textarea id="pDesc" rows="4" placeholder="اكتب تفاصيل المنتج هنا..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- الصور -->
+        <div class="section-box">
+          <div class="section-title"><i class="fas fa-image"></i> صور المنتج</div>
+          <div class="section-content">
+            <div class="form-group">
+              <label>رابط الصورة (URL)</label>
+              <input type="url" id="pImage" placeholder="https://..." onchange="previewImage(this.value)">
+            </div>
+            <div style="text-align:center; color:var(--text-soft); margin:10px 0;">أو</div>
+            <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>اختر صورة</span>
+              <small>اختيار من المكتبة</small>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(this)">
+            <img id="imgPreview" class="img-preview" alt="معاينة">
+          </div>
+        </div>
+
+        <!-- أزرار الحفظ -->
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:15px; font-size:1.1rem; border-radius:15px; margin-bottom:10px;">
+          <i class="fas fa-paper-plane"></i> نشر المنتج
+        </button>
+      </form>
+    </div>
+
     <!-- إدارة الأقسام -->
     <div class="page-panel" id="panel-categories">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('mainDashboard')"><i class="fas fa-arrow-right"></i></button>
+        <h2>الأقسام</h2>
+        <div></div>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-tags"></i> الأقسام</h3></div>
         <div class="panel-body">
           <div style="display:flex; gap:10px; margin-bottom:20px;">
             <input type="text" id="newCatInput" placeholder="اسم القسم الجديد" style="flex:1; padding:10px; border:1px solid var(--pink-light); border-radius:10px; background:var(--pink-bg);">
-            <button class="btn btn-primary" onclick="addCategory()"><i class="fas fa-plus"></i> إضافة</button>
+            <button class="btn btn-primary" onclick="addCategory()"><i class="fas fa-plus"></i></button>
           </div>
           <div class="table-responsive">
             <table><thead><tr><th>القسم</th><th>عدد المنتجات</th><th>إجراءات</th></tr></thead><tbody id="catsTable"></tbody></table>
@@ -342,10 +476,14 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
       </div>
     </div>
 
-    <!-- إدارة التعليقات (جديد) -->
+    <!-- إدارة التعليقات -->
     <div class="page-panel" id="panel-reviews">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('mainDashboard')"><i class="fas fa-arrow-right"></i></button>
+        <h2>التعليقات والتقييمات</h2>
+        <div></div>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-star"></i> التعليقات والتقييمات</h3></div>
         <div class="panel-body">
           <div class="table-responsive">
             <table>
@@ -357,10 +495,14 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
       </div>
     </div>
 
-    <!-- إعدادات المتجر (تمت الإضافة) -->
+    <!-- إعدادات المتجر -->
     <div class="page-panel" id="panel-settings">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('mainDashboard')"><i class="fas fa-arrow-right"></i></button>
+        <h2>إعدادات المتجر</h2>
+        <div></div>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-cog"></i> إعدادات المتجر</h3></div>
         <div class="panel-body">
           <form id="storeSettingsForm">
             <div class="form-group"><label>اسم المتجر</label><input type="text" id="settingName" required></div>
@@ -377,10 +519,14 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
       </div>
     </div>
 
-    <!-- صفحة الدعم (تمت الإضافة) -->
+    <!-- صفحة الدعم -->
     <div class="page-panel" id="panel-support">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('mainDashboard')"><i class="fas fa-arrow-right"></i></button>
+        <h2>الدعم والمساعدة</h2>
+        <div></div>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-headset"></i> الدعم والمساعدة</h3></div>
         <div class="panel-body">
           <div style="background:var(--pink-bg); padding:20px; border-radius:15px; border:1px solid var(--pink-light); text-align:center; margin-bottom:20px;">
             <i class="fas fa-headset" style="font-size:3rem; color:var(--pink-main); margin-bottom:15px;"></i>
@@ -399,8 +545,12 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
 
     <!-- إعدادات الأمان -->
     <div class="page-panel" id="panel-security">
+      <div class="page-topbar">
+        <button class="back-btn" onclick="showPage('panel-settings')"><i class="fas fa-arrow-right"></i></button>
+        <h2>إعدادات الأمان</h2>
+        <div></div>
+      </div>
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-shield-halved"></i> إعدادات الأمان</h3></div>
         <div class="panel-body">
           <form id="securityForm">
             <div class="form-group"><label>اسم المستخدم الجديد</label><input type="text" id="newUser" required></div>
@@ -424,29 +574,6 @@ th {background: var(--pink-bg); color: var(--pink-dark); font-weight: 900;}
     <div class="nav-item home-btn active" onclick="showPage('mainDashboard')"><i class="fas fa-home"></i><span>الرئيسية</span></div>
   </nav>
 
-</div>
-
-<!-- مودال المنتج -->
-<div class="modal-overlay" id="productModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="productModalTitle" style="color:var(--pink-dark);">إضافة منتج جديد</h3>
-      <button class="icon-btn btn-danger" onclick="document.getElementById('productModal').classList.remove('active')"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <form id="productForm">
-        <input type="hidden" id="pId">
-        <div class="form-grid">
-          <div class="form-group" style="grid-column:1/-1;"><label>اسم المنتج *</label><input type="text" id="pName" required></div>
-          <div class="form-group"><label>السعر *</label><input type="number" id="pPrice" required></div>
-          <div class="form-group"><label>القسم *</label><select id="pCategory" required></select></div>
-          <div class="form-group" style="grid-column:1/-1;"><label>رابط الصورة</label><input type="url" id="pImage"></div>
-          <div class="form-group" style="grid-column:1/-1;"><label>الوصف</label><textarea id="pDesc" rows="2"></textarea></div>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:20px;">حفظ</button>
-      </form>
-    </div>
-  </div>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
@@ -490,6 +617,7 @@ function showPage(id) {
     if(id === 'panel-categories') renderCategories();
     if(id === 'panel-reviews') renderReviews();
     if(id === 'panel-settings') renderSettings();
+    if(id === 'panel-add-product') setupAddProductPage();
   }
   window.scrollTo(0,0);
 }
@@ -522,6 +650,50 @@ function showToast(msg, type='success') {
   el.innerHTML = `<i class="fas ${type==='error'?'fa-exclamation-circle':'fa-check-circle'}"></i> ${msg}`;
   c.appendChild(el);
   setTimeout(()=>{ el.remove() }, 3000);
+}
+
+// دوال صفحة المنتج
+function setupAddProductPage() {
+  const idVal = document.getElementById('pId').value;
+  if(idVal) {
+    document.getElementById('addProductTitle').textContent = 'تعديل المنتج';
+    document.getElementById('addProductHeaderTitle').textContent = 'تعديل المنتج';
+  } else {
+    document.getElementById('addProductTitle').textContent = 'إضافة منتج جديد';
+    document.getElementById('addProductHeaderTitle').textContent = 'إضافة منتج جديد';
+    document.getElementById('productForm').reset();
+    document.getElementById('pId').value = '';
+    document.getElementById('imgPreview').style.display = 'none';
+    document.getElementById('imgPreview').src = '';
+  }
+  
+  const sel = document.getElementById('pCategory');
+  sel.innerHTML = getCategories().map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function previewImage(url) {
+  const img = document.getElementById('imgPreview');
+  if(url) {
+    img.src = url;
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
+}
+
+function handleFileUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.getElementById('imgPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    // حفظ الرابط مؤقتاً في حقل الرابط
+    document.getElementById('pImage').value = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 // عرض لوحة المعلومات
@@ -644,7 +816,7 @@ function renderCategories() {
   `).join('');
 }
 
-// إدارة التعليقات (جديد)
+// إدارة التعليقات
 function renderReviews() {
   const reviews = getReviews();
   const tbody = document.getElementById('reviewsTable');
@@ -657,9 +829,9 @@ function renderReviews() {
       <tr>
         <td><b>${r.name}</b></td>
         <td>${r.text}</td>
-        <td><span class="tag ${r.approved ? 'bg-success' : 'bg-warning'}" style="${r.approved ? 'background:#10B981; color:white;' : 'background:#F59E0B; color:white;'}">${r.approved ? 'معتمد' : 'قيد الانتظار'}</span></td>
+        <td><span class="tag" style="${r.approved ? 'background:#10B981; color:white;' : 'background:#F59E0B; color:white;'}">${r.approved ? 'معتمد' : 'قيد الانتظار'}</span></td>
         <td>
-          ${!r.approved ? `<button class="btn btn-success btn-sm" onclick="approveReview(${index})"><i class="fas fa-check"></i> موافقة</button>` : ''}
+          ${!r.approved ? `<button class="btn btn-success btn-sm" onclick="approveReview(${index})"><i class="fas fa-check"></i></button>` : ''}
           <button class="btn btn-danger btn-sm" onclick="deleteReview(${index})"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
@@ -684,7 +856,7 @@ window.deleteReview = function(index) {
   }
 };
 
-// إعدادات المتجر (جديد)
+// إعدادات المتجر
 function renderSettings() {
   const s = getSettings();
   document.getElementById('settingName').value = s.name;
@@ -706,28 +878,25 @@ document.getElementById('storeSettingsForm').addEventListener('submit', function
 
 // إدارة المنتجات
 function openProductForm(id=null) {
-  const form = document.getElementById('productForm');
-  form.reset();
   document.getElementById('pId').value = '';
+  document.getElementById('productForm').reset();
+  document.getElementById('imgPreview').style.display = 'none';
   
-  const sel = document.getElementById('pCategory');
-  sel.innerHTML = getCategories().map(c=>`<option value="${c}">${c}</option>`).join('');
-
   if(id) {
     const p = getProducts().find(x=>x.id===id);
     if(p) {
-      document.getElementById('productModalTitle').textContent = 'تعديل المنتج';
       document.getElementById('pId').value = p.id;
       document.getElementById('pName').value = p.name;
       document.getElementById('pPrice').value = p.price;
+      document.getElementById('pOldPrice').value = p.oldPrice || '';
       document.getElementById('pCategory').value = p.category;
+      document.getElementById('pStock').value = p.stock || 10;
       document.getElementById('pImage').value = p.image || '';
       document.getElementById('pDesc').value = p.description || '';
+      if(p.image) previewImage(p.image);
     }
-  } else {
-    document.getElementById('productModalTitle').textContent = 'إضافة منتج جديد';
   }
-  document.getElementById('productModal').classList.add('active');
+  showPage('panel-add-product');
 }
 
 window.editProduct = function(id) { openProductForm(id); };
@@ -747,10 +916,13 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
   const data = {
     name: document.getElementById('pName').value,
     price: parseFloat(document.getElementById('pPrice').value),
+    oldPrice: document.getElementById('pOldPrice').value ? parseFloat(document.getElementById('pOldPrice').value) : null,
     category: document.getElementById('pCategory').value,
     image: document.getElementById('pImage').value || 'https://placehold.co/400?text=No+Image',
     description: document.getElementById('pDesc').value,
-    rating: 4.5, stock: 10, createdAt: new Date().toISOString()
+    rating: 4.5, 
+    stock: parseInt(document.getElementById('pStock').value) || 10, 
+    createdAt: new Date().toISOString()
   };
 
   if(idVal) {
@@ -762,9 +934,8 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
   }
   
   saveProducts(prods);
-  document.getElementById('productModal').classList.remove('active');
-  renderProductsTable();
   showToast('تم الحفظ بنجاح');
+  showPage('panel-products');
 });
 
 // إدارة الأقسام
@@ -810,6 +981,7 @@ window.resetAuth = function() {
     setTimeout(()=>location.reload(), 1500);
   }
 };
+
 </script>
 </body>
 </html>
