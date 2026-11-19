@@ -238,16 +238,19 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
         <div class="panel">
           <div class="panel-head"><h3><i class="fas fa-shield-halved"></i> إعدادات الأمان</h3></div>
           <div class="panel-body">
-            <div style="background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:#fca5a5; padding:15px; border-radius:10px; margin-bottom:20px; font-size:0.9rem;">
-              <i class="fas fa-info-circle"></i> <b>ملاحظة هامة:</b> تم تثبيت بيانات الدخول لحماية اللوحة من القفل. الدخول متاح دائماً باستخدام: <br><br>
-              <b>اسم المستخدم:</b> admin <br>
-              <b>كلمة المرور:</b> admin123
-            </div>
-            <form id="securityForm" style="opacity: 0.5; pointer-events: none;">
-              <div class="form-group"><label>اسم المستخدم الجديد (معطل)</label><input type="text" id="newUser" disabled placeholder="admin"></div>
-              <div class="form-group"><label>كلمة المرور الجديدة (معطل)</label><input type="password" id="newPass" disabled placeholder="••••••••"></div>
-              <div class="form-actions"><button type="submit" class="btn btn-primary" disabled><i class="fas fa-save"></i> تحديث (معطل)</button></div>
+            <form id="securityForm">
+              <div class="form-group"><label>اسم المستخدم الجديد</label><input type="text" id="newUser" required></div>
+              <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="newPass" required></div>
+              <div class="form-group"><label>تأكيد كلمة المرور</label><input type="password" id="confirmPass" required></div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> حفظ التغييرات</button>
+              </div>
             </form>
+            <hr style="border-color:var(--border); margin: 20px 0;">
+            <div style="background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); padding:15px; border-radius:10px;">
+              <p style="color:#fca5a5; font-size:0.85rem; margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i> إذا نسيت كلمة المرور، يمكنك استعادة الإعدادات الافتراضية من هنا:</p>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="resetAuth()" style="color:#fca5a5; border:1px solid #fca5a5;"><i class="fas fa-rotate-left"></i> استعادة (admin / admin123)</button>
+            </div>
           </div>
         </div>
       </div>
@@ -296,9 +299,13 @@ function saveCategories(data){ localStorage.setItem(KEYS.categories, JSON.string
 function getOrders(){ try{ return JSON.parse(localStorage.getItem(KEYS.orders)) || [] }catch(e){ return [] } }
 function saveOrders(data){ localStorage.setItem(KEYS.orders, JSON.stringify(data)) }
 
-// دالة تسجيل الدخول: تم تثبيتها على admin / admin123 
-function getAuth() { 
-  return { user: 'admin', pass: 'admin123' }; 
+// دالة جلب بيانات الدخول (تقرأ من الذاكرة أو ترجع للافتراضي)
+function getAuth() {
+  try {
+    const a = JSON.parse(localStorage.getItem(KEYS.auth));
+    if(a && a.user) return a;
+  } catch(e){}
+  return { user: 'admin', pass: 'admin123' };
 }
 
 // تسجيل الدخول
@@ -529,6 +536,32 @@ window.delCat = function(c) {
     const cats = getCategories().filter(x=>x!==c);
     saveCategories(cats);
     renderAll();
+  }
+};
+
+// تحديث الأمان (الآن يعمل ويحتفظ بالبيانات)
+document.getElementById('securityForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const u = document.getElementById('newUser').value.trim();
+  const p1 = document.getElementById('newPass').value;
+  const p2 = document.getElementById('confirmPass').value;
+  
+  if(!u || !p1) return showToast('يرجى تعبئة جميع الحقول', 'error');
+  if(p1 !== p2) return showToast('كلمات المرور غير متطابقة', 'error');
+  
+  // حفظ البيانات الجديدة في الذاكرة
+  localStorage.setItem(KEYS.auth, JSON.stringify({ user: u, pass: p1 }));
+  showToast('تم تحديث بيانات الدخول! سيتم تسجيل الخروج لتجربتها.');
+  
+  setTimeout(()=>location.reload(), 2000);
+});
+
+// استعادة البيانات الافتراضية (في حال نسيان كلمة المرور)
+window.resetAuth = function() {
+  if(confirm('هل أنت متأكد من استعادة بيانات الدخول الافتراضية (admin / admin123)؟')) {
+    localStorage.removeItem(KEYS.auth); // مسح الكلمة المخصصة
+    showToast('تمت الاستعادة! سيتم إعادة تحميل الصفحة.');
+    setTimeout(()=>location.reload(), 1500);
   }
 };
 </script>
