@@ -34,7 +34,7 @@ input,select,textarea{font-family:inherit;font-size:1rem} .hidden{display:none!i
 /* Layout */
 #adminApp{display:none;min-height:100vh} #adminApp.active{display:flex}
 .sidebar{width:260px;background:var(--sidebar);border-left:1px solid var(--border);position:fixed;top:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:var(--transition);}
-.sidebar-header{padding:24px 22px;border-bottom:1px solid var(--border)}
+.sidebar-header{padding:24px 22px;border-bottom:1px solid var(--border); position:relative;}
 .sidebar-logo{font-size:1.8rem;font-weight:900;color:#fff} .sidebar-logo span{color:var(--primary)}
 .sidebar-logo small{display:block;font-size:.75rem;color:var(--text-soft);font-weight:400;margin-top:2px}
 .sidebar-nav{flex:1;padding:18px 12px;overflow-y:auto}
@@ -49,6 +49,7 @@ input,select,textarea{font-family:inherit;font-size:1rem} .hidden{display:none!i
 .admin-badge{display:flex;align-items:center;gap:8px;background:var(--bg);padding:8px 14px;border-radius:50px;font-size:.85rem;font-weight:600;border:1px solid var(--border);}
 .admin-badge .avatar{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;}
 .menu-btn{display:none;font-size:1.2rem;padding:8px}
+.close-sidebar-btn {display:none; position: absolute; left: 15px; top: 20px; font-size: 1.2rem; color: var(--text-soft);}
 .content{padding:28px}
 .page-panel{display:none;animation:fadeIn .35s ease} .page-panel.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -98,9 +99,14 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
 @keyframes slideOut{to{transform:translateX(-100%);opacity:0}}
 .empty-table{text-align:center;padding:50px 20px;color:var(--text-soft)}
 
+/* تعديلات الجوال */
 @media(max-width:900px){
-  .sidebar{transform:translateX(100%)} .sidebar.open{transform:translateX(0)}
-  .main-content{margin-right:0} .menu-btn{display:flex} .form-grid{grid-template-columns:1fr}
+  .sidebar{transform:translateX(100%)} 
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-right:0} 
+  .menu-btn{display:flex} 
+  .close-sidebar-btn {display:block}
+  .form-grid{grid-template-columns:1fr}
 }
 @media(max-width:600px){
   .content{padding:18px} .topbar{padding:0 16px;} .stats-grid{grid-template-columns:1fr 1fr;}
@@ -130,7 +136,10 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
 <!-- لوحة التحكم -->
 <div id="adminApp">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header"><div class="sidebar-logo">راي<span>.</span><small>لوحة التحكم</small></div></div>
+    <div class="sidebar-header">
+      <div class="sidebar-logo">راي<span>.</span><small>لوحة التحكم</small></div>
+      <button class="close-sidebar-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
+    </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" data-panel="dashboard"><i class="fas fa-gauge-high"></i> لوحة المعلومات</div>
       <div class="nav-item" data-panel="orders"><i class="fas fa-shopping-bag"></i> إدارة الطلبات</div>
@@ -201,7 +210,7 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
         </div>
       </div>
 
-      <!-- صفحة تفاصيل الطلب (الجديدة) -->
+      <!-- صفحة تفاصيل الطلب -->
       <div class="page-panel" id="panel-order-details">
         <div class="panel">
           <div class="panel-head">
@@ -330,7 +339,6 @@ function saveCategories(data){ localStorage.setItem(KEYS.categories, JSON.string
 function getOrders(){ try{ return JSON.parse(localStorage.getItem(KEYS.orders)) || [] }catch(e){ return [] } }
 function saveOrders(data){ localStorage.setItem(KEYS.orders, JSON.stringify(data)) }
 
-// دالة جلب بيانات الدخول
 function getAuth() {
   try {
     const a = JSON.parse(localStorage.getItem(KEYS.auth));
@@ -361,15 +369,22 @@ document.getElementById('logoutBtn').addEventListener('click', ()=>{
   if(confirm('تسجيل الخروج؟')) location.reload();
 });
 
+// إغلاق القائمة الجانبية في الجوال
+const sidebar = document.getElementById('sidebar');
+document.getElementById('menuBtn').addEventListener('click', ()=> sidebar.classList.add('open'));
+document.getElementById('closeSidebarBtn').addEventListener('click', ()=> sidebar.classList.remove('open'));
+
 // التنقل بين الصفحات
 document.querySelectorAll('.nav-item').forEach(n => {
   n.addEventListener('click', ()=>{
+    // إغلاق القائمة بعد الاختيار (لحل مشكلة التصميم في الجوال)
+    sidebar.classList.remove('open');
+
     document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.page-panel').forEach(x=>x.classList.remove('active'));
     n.classList.add('active');
     document.getElementById('panel-'+n.dataset.panel).classList.add('active');
     document.getElementById('pageTitle').textContent = n.textContent.trim();
-    document.getElementById('sidebar').classList.remove('open');
   });
 });
 
@@ -431,13 +446,12 @@ function renderOrders() {
   }
 }
 
-// دالة فتح تفاصيل الطلب (الجديدة)
+// دالة فتح تفاصيل الطلب
 window.openOrderDetails = function(id) {
   const orders = getOrders();
   const order = orders.find(o => o.id === id);
   if(!order) return;
 
-  // تعبئة البيانات في صفحة التفاصيل
   document.getElementById('orderDetailId').textContent = `#${order.id}`;
   document.getElementById('odCustomer').textContent = order.customerName;
   document.getElementById('odPhone').textContent = order.phone;
@@ -448,7 +462,6 @@ window.openOrderDetails = function(id) {
   document.getElementById('odShipping').textContent = `${order.shipping} ر.س`;
   document.getElementById('odTotal').textContent = `${order.total} ر.س`;
 
-  // تعبئة المنتجات
   const itemsContainer = document.getElementById('odItems');
   itemsContainer.innerHTML = order.items.map(i => `
     <div style="display:flex;align-items:center;gap:15px;background:var(--bg);padding:10px;border-radius:10px;">
@@ -461,7 +474,6 @@ window.openOrderDetails = function(id) {
     </div>
   `).join('');
 
-  // التبديل إلى صفحة التفاصيل
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.page-panel').forEach(x=>x.classList.remove('active'));
   document.getElementById('panel-order-details').classList.add('active');
@@ -514,7 +526,7 @@ function renderCategories() {
   `).join('');
 }
 
-// إدارة المنتجات (إضافة/تعديل/حذف)
+// إدارة المنتجات
 function openProductForm(id=null) {
   const form = document.getElementById('productForm');
   form.reset();
