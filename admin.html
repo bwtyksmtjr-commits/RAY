@@ -201,6 +201,37 @@ th{background:var(--bg);color:var(--text-soft);font-weight:700;font-size:.82rem}
         </div>
       </div>
 
+      <!-- صفحة تفاصيل الطلب (الجديدة) -->
+      <div class="page-panel" id="panel-order-details">
+        <div class="panel">
+          <div class="panel-head">
+            <h3><i class="fas fa-file-invoice"></i> تفاصيل الطلب <span id="orderDetailId" style="color:var(--primary);margin-right:10px;"></span></h3>
+            <button class="btn btn-ghost btn-sm" onclick="document.querySelector('[data-panel=orders]').click()"><i class="fas fa-arrow-right"></i> رجوع للطلبات</button>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid" style="margin-bottom:20px;">
+              <div class="form-group" style="background:var(--bg);padding:15px;border-radius:10px;">
+                <label style="font-size:1rem;color:var(--primary);margin-bottom:10px;"><i class="fas fa-user"></i> بيانات العميل</label>
+                <p style="font-size:1.1rem;font-weight:bold;margin-bottom:5px;" id="odCustomer"></p>
+                <p style="color:var(--text-soft);direction:ltr;text-align:right;" id="odPhone"></p>
+                <p style="color:var(--text-soft);" id="odAddress"></p>
+                <p style="color:var(--text-soft);margin-top:5px;" id="odDate"></p>
+              </div>
+              <div class="form-group" style="background:var(--bg);padding:15px;border-radius:10px;">
+                <label style="font-size:1rem;color:var(--primary);margin-bottom:10px;"><i class="fas fa-truck"></i> ملخص الفاتورة والشحن</label>
+                <p style="display:flex;justify-content:space-between;margin-top:15px;"><span>المجموع الفرعي:</span> <b id="odSubtotal"></b></p>
+                <p style="display:flex;justify-content:space-between;"><span>رسوم الشحن:</span> <b id="odShipping"></b></p>
+                <hr style="border-color:var(--border); margin:10px 0;">
+                <p style="display:flex;justify-content:space-between;font-size:1.2rem;color:var(--primary);"><b>الإجمالي المطلوب:</b> <b id="odTotal"></b></p>
+              </div>
+            </div>
+            
+            <h4 style="margin-bottom:15px;color:var(--text-soft);">المنتجات المطلوبة:</h4>
+            <div id="odItems" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- المنتجات -->
       <div class="page-panel" id="panel-products">
         <div class="panel">
@@ -299,7 +330,7 @@ function saveCategories(data){ localStorage.setItem(KEYS.categories, JSON.string
 function getOrders(){ try{ return JSON.parse(localStorage.getItem(KEYS.orders)) || [] }catch(e){ return [] } }
 function saveOrders(data){ localStorage.setItem(KEYS.orders, JSON.stringify(data)) }
 
-// دالة جلب بيانات الدخول (تقرأ من الذاكرة أو ترجع للافتراضي)
+// دالة جلب بيانات الدخول
 function getAuth() {
   try {
     const a = JSON.parse(localStorage.getItem(KEYS.auth));
@@ -330,7 +361,7 @@ document.getElementById('logoutBtn').addEventListener('click', ()=>{
   if(confirm('تسجيل الخروج؟')) location.reload();
 });
 
-// التنقل
+// التنقل بين الصفحات
 document.querySelectorAll('.nav-item').forEach(n => {
   n.addEventListener('click', ()=>{
     document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
@@ -359,7 +390,7 @@ function renderAll() {
   renderCategories();
 }
 
-// دالة عرض الطلبات
+// عرض قائمة الطلبات
 function renderOrders() {
   const orders = getOrders();
   const statEl = document.getElementById('statOrders');
@@ -377,10 +408,10 @@ function renderOrders() {
     emptyEl.classList.add('hidden');
     tbody.innerHTML = orders.slice().reverse().map(o => `
       <tr>
-        <td><b>#${o.id}</b></td>
+        <td><b style="color:var(--primary); cursor:pointer; text-decoration:underline;" onclick="openOrderDetails(${o.id})">#${o.id}</b></td>
         <td>
           <b>${o.customerName}</b><br>
-          <small style="color:var(--text-soft)">${o.phone}</small>
+          <small style="color:var(--text-soft); direction:ltr; display:inline-block;">${o.phone}</small>
         </td>
         <td>
           <div style="display:flex;flex-direction:column;gap:5px;">
@@ -400,6 +431,44 @@ function renderOrders() {
   }
 }
 
+// دالة فتح تفاصيل الطلب (الجديدة)
+window.openOrderDetails = function(id) {
+  const orders = getOrders();
+  const order = orders.find(o => o.id === id);
+  if(!order) return;
+
+  // تعبئة البيانات في صفحة التفاصيل
+  document.getElementById('orderDetailId').textContent = `#${order.id}`;
+  document.getElementById('odCustomer').textContent = order.customerName;
+  document.getElementById('odPhone').textContent = order.phone;
+  document.getElementById('odAddress').textContent = order.address || 'لم يتم إدخال عنوان';
+  document.getElementById('odDate').textContent = order.date;
+  
+  document.getElementById('odSubtotal').textContent = `${order.subtotal} ر.س`;
+  document.getElementById('odShipping').textContent = `${order.shipping} ر.س`;
+  document.getElementById('odTotal').textContent = `${order.total} ر.س`;
+
+  // تعبئة المنتجات
+  const itemsContainer = document.getElementById('odItems');
+  itemsContainer.innerHTML = order.items.map(i => `
+    <div style="display:flex;align-items:center;gap:15px;background:var(--bg);padding:10px;border-radius:10px;">
+      <img src="${i.image}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;">
+      <div style="flex:1;">
+        <h5 style="font-size:1rem;">${i.name}</h5>
+        <span style="color:var(--text-soft);font-size:0.85rem;">الكمية: ${i.qty}</span>
+      </div>
+      <b style="color:var(--primary);">${i.price * i.qty} ر.س</b>
+    </div>
+  `).join('');
+
+  // التبديل إلى صفحة التفاصيل
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.page-panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-order-details').classList.add('active');
+  document.getElementById('pageTitle').textContent = 'تفاصيل الطلب';
+};
+
+// عرض المنتجات
 function renderProducts() {
   const prods = getProducts();
   document.getElementById('statProducts').textContent = prods.length;
@@ -430,6 +499,7 @@ function renderProducts() {
   `).join('');
 }
 
+// عرض الأقسام
 function renderCategories() {
   const cats = getCategories();
   const prods = getProducts();
@@ -444,7 +514,7 @@ function renderCategories() {
   `).join('');
 }
 
-// إدارة المنتجات
+// إدارة المنتجات (إضافة/تعديل/حذف)
 function openProductForm(id=null) {
   const form = document.getElementById('productForm');
   form.reset();
@@ -539,7 +609,7 @@ window.delCat = function(c) {
   }
 };
 
-// تحديث الأمان (الآن يعمل ويحتفظ بالبيانات)
+// تحديث الأمان
 document.getElementById('securityForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const u = document.getElementById('newUser').value.trim();
@@ -549,17 +619,16 @@ document.getElementById('securityForm').addEventListener('submit', function(e) {
   if(!u || !p1) return showToast('يرجى تعبئة جميع الحقول', 'error');
   if(p1 !== p2) return showToast('كلمات المرور غير متطابقة', 'error');
   
-  // حفظ البيانات الجديدة في الذاكرة
   localStorage.setItem(KEYS.auth, JSON.stringify({ user: u, pass: p1 }));
   showToast('تم تحديث بيانات الدخول! سيتم تسجيل الخروج لتجربتها.');
   
   setTimeout(()=>location.reload(), 2000);
 });
 
-// استعادة البيانات الافتراضية (في حال نسيان كلمة المرور)
+// استعادة البيانات الافتراضية
 window.resetAuth = function() {
   if(confirm('هل أنت متأكد من استعادة بيانات الدخول الافتراضية (admin / admin123)؟')) {
-    localStorage.removeItem(KEYS.auth); // مسح الكلمة المخصصة
+    localStorage.removeItem(KEYS.auth);
     showToast('تمت الاستعادة! سيتم إعادة تحميل الصفحة.');
     setTimeout(()=>location.reload(), 1500);
   }
